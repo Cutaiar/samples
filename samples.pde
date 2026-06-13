@@ -333,7 +333,7 @@ void writeOutObj() {
 void printMetaData() {
     camera.beginHUD();
     int yi = 15;
-    int y = 40; // offset clears the window title bar
+    int y = 40 + yi * 2; // offset clears the window title bar, plus top padding
 
     // Mode header
     fill(255);
