@@ -113,7 +113,7 @@ void setup() {
 
     // Create minim object
     minim = new Minim(this);
-    selectInput("Select an audio file (cancel for live input):", "fileSelected");
+    switchToLiveMode();
 }
 
 void fileSelected(File selection) {
@@ -185,8 +185,8 @@ void draw() {
     if (activeSource == null) {
         camera.beginHUD();
         fill(255);
-        text("Select an audio file, or cancel to use live input.", width/2 - 170, height/2);
-        text("Press m at any time to switch modes.", width/2 - 130, height/2 + 20);
+        text("Initializing audio...", width/2 - 80, height/2);
+        text("Press m to load a file.", width/2 - 80, height/2 + 20);
         camera.endHUD();
         return;
     }
