@@ -367,10 +367,3 @@ void keyPressed() {
 void cameraSpinX() { camera.rotateX(CAMERA_ROTATE_SPEED); }
 void cameraSpinY() { camera.rotateY(CAMERA_ROTATE_SPEED); }
 void cameraSpinZ() { camera.rotateZ(CAMERA_ROTATE_SPEED); }
-
-void showAxis() {
-    stroke(255);
-    line(-AXIS_LENGTH, 0, 0, AXIS_LENGTH, 0, 0); //x
-    line(0, -AXIS_LENGTH, 0, 0, AXIS_LENGTH, 0); //y
-    line(0, 0, -AXIS_LENGTH, 0, 0, AXIS_LENGTH); //z
-}

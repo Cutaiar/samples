@@ -1,3 +1,10 @@
+void showAxis() {
+    stroke(255);
+    line(-AXIS_LENGTH, 0, 0, AXIS_LENGTH, 0, 0); //x
+    line(0, -AXIS_LENGTH, 0, 0, AXIS_LENGTH, 0); //y
+    line(0, 0, -AXIS_LENGTH, 0, 0, AXIS_LENGTH); //z
+}
+
 //--------------- HUD Globals ---------------------------
 
 // Flash state for key press visualization in the HUD
