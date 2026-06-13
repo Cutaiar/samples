@@ -49,3 +49,5 @@ BlackHole acts as a loopback device. To hear audio through your speakers *and* f
 Now any audio playing on your Mac will drive the visualization.
 
 > **Note:** When you're done, switch your output back to your speakers/headphones and your input back to the microphone. The Multi-Output Device has no volume control, so keyboard and menu bar volume keys won't work while it's active.
+
+**AirPlay / wifi speakers:** AirPlay devices don't appear in Audio MIDI Setup and can't be added to a Multi-Output Device. If you want to visualize audio playing on an AirPlay speaker, [Loopback](https://rogueamoeba.com/loopback/) by Rogue Amoeba ($99) can capture per-app audio and route it to BlackHole regardless of where the app is sending its output.
