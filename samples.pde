@@ -74,8 +74,13 @@ boolean update = true;
 boolean drawElements = false;
 boolean drawLines = true;
 boolean isAxis = true;
-boolean isShowingBounds = false;
+int boundsMode = 0; // 0=off, 1=dynamic, 2=max
 boolean isShowingMetaData = true;
+
+// Running max extents for bounds max mode — reset on audio restart
+float maxBoundsMinX, maxBoundsMaxX;
+float maxBoundsMinY, maxBoundsMaxY;
+float maxBoundsMinZ, maxBoundsMaxZ;
 boolean isDoingCameraSpinX = false;
 boolean isDoingCameraSpinY = false;
 boolean isDoingCameraSpinZ = false;
@@ -167,6 +172,13 @@ void initParticles(AudioSource source) {
     for (int i = 0; i < source.bufferSize(); i++) {
         particles[i] = new Particle();
     }
+    resetMaxBounds();
+}
+
+void resetMaxBounds() {
+    maxBoundsMinX = Float.MAX_VALUE;  maxBoundsMaxX = -Float.MAX_VALUE;
+    maxBoundsMinY = Float.MAX_VALUE;  maxBoundsMaxY = -Float.MAX_VALUE;
+    maxBoundsMinZ = Float.MAX_VALUE;  maxBoundsMaxZ = -Float.MAX_VALUE;
 }
 
 //--------------- Main draw loop ---------------------------
@@ -183,7 +195,7 @@ void draw() {
     if (drawBG) background(0);
     if (isShowingMetaData) printMetaData();
     if (isAxis) showAxis();
-    if (isShowingBounds) showBounds();
+    if (boundsMode > 0) showBounds();
     if (isDoingCameraSpinX) cameraSpinX();
     if (isDoingCameraSpinY) cameraSpinY();
     if (isDoingCameraSpinZ) cameraSpinZ();
@@ -344,9 +356,9 @@ void keyPressed() {
         isAxis = !isAxis;
     }
 
-    // Toggle bounds box
+    // Cycle bounds box: off → dynamic → max → off
     if (key == 'f') {
-        isShowingBounds = !isShowingBounds;
+        boundsMode = (boundsMode + 1) % 3;
     }
 
     // Write out

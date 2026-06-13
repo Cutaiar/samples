@@ -6,6 +6,7 @@ void showAxis() {
 }
 
 void showBounds() {
+    // Compute current frame extents
     float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
     float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
     float minZ = Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
@@ -17,6 +18,17 @@ void showBounds() {
         if (p.loc.z < minZ) minZ = p.loc.z;
         if (p.loc.z > maxZ) maxZ = p.loc.z;
     }
+
+    if (boundsMode == 2) {
+        // Expand running max extents
+        maxBoundsMinX = min(maxBoundsMinX, minX);  maxBoundsMaxX = max(maxBoundsMaxX, maxX);
+        maxBoundsMinY = min(maxBoundsMinY, minY);  maxBoundsMaxY = max(maxBoundsMaxY, maxY);
+        maxBoundsMinZ = min(maxBoundsMinZ, minZ);  maxBoundsMaxZ = max(maxBoundsMaxZ, maxZ);
+        minX = maxBoundsMinX;  maxX = maxBoundsMaxX;
+        minY = maxBoundsMinY;  maxY = maxBoundsMaxY;
+        minZ = maxBoundsMinZ;  maxZ = maxBoundsMaxZ;
+    }
+
     pushStyle();
     noFill();
     stroke(255, 60);
@@ -101,7 +113,7 @@ void printMetaData() {
     y += yi; ctrlLine(y, "d",       "Lines: " + drawLines,                                  flashKey == 'd');
     y += yi; ctrlLine(y, "c",       "Background: " + drawBG,                                flashKey == 'c');
     y += yi; ctrlLine(y, "t",       "Axis: " + isAxis,                                     flashKey == 't');
-    y += yi; ctrlLine(y, "f",       "Bounds: " + isShowingBounds,                          flashKey == 'f');
+    y += yi; ctrlLine(y, "f",       "Bounds: " + (boundsMode == 0 ? "off" : boundsMode == 1 ? "dynamic" : "max"), flashKey == 'f');
     y += yi; ctrlLine(y, "p",       "Write out to file",                                    flashKey == 'p');
     y += yi; ctrlLine(y, "→",       "Camera spin X: " + isDoingCameraSpinX,                flashKeyCode == RIGHT);
     y += yi; ctrlLine(y, "↓",       "Camera spin Y: " + isDoingCameraSpinY,                flashKeyCode == DOWN);
