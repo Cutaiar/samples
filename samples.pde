@@ -74,6 +74,7 @@ boolean update = true;
 boolean drawElements = false;
 boolean drawLines = true;
 boolean isAxis = true;
+boolean isShowingBounds = false;
 boolean isShowingMetaData = true;
 boolean isDoingCameraSpinX = false;
 boolean isDoingCameraSpinY = false;
@@ -182,6 +183,7 @@ void draw() {
     if (drawBG) background(0);
     if (isShowingMetaData) printMetaData();
     if (isAxis) showAxis();
+    if (isShowingBounds) showBounds();
     if (isDoingCameraSpinX) cameraSpinX();
     if (isDoingCameraSpinY) cameraSpinY();
     if (isDoingCameraSpinZ) cameraSpinZ();
@@ -340,6 +342,11 @@ void keyPressed() {
     // Toggle Axis draw
     if (key == 't') {
         isAxis = !isAxis;
+    }
+
+    // Toggle bounds box
+    if (key == 'f') {
+        isShowingBounds = !isShowingBounds;
     }
 
     // Write out

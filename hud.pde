@@ -5,6 +5,39 @@ void showAxis() {
     line(0, 0, -AXIS_LENGTH, 0, 0, AXIS_LENGTH); //z
 }
 
+void showBounds() {
+    float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
+    float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
+    float minZ = Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
+    for (Particle p : particles) {
+        if (p.loc.x < minX) minX = p.loc.x;
+        if (p.loc.x > maxX) maxX = p.loc.x;
+        if (p.loc.y < minY) minY = p.loc.y;
+        if (p.loc.y > maxY) maxY = p.loc.y;
+        if (p.loc.z < minZ) minZ = p.loc.z;
+        if (p.loc.z > maxZ) maxZ = p.loc.z;
+    }
+    pushStyle();
+    noFill();
+    stroke(255, 60);
+    // Bottom face
+    line(minX, minY, minZ,  maxX, minY, minZ);
+    line(maxX, minY, minZ,  maxX, maxY, minZ);
+    line(maxX, maxY, minZ,  minX, maxY, minZ);
+    line(minX, maxY, minZ,  minX, minY, minZ);
+    // Top face
+    line(minX, minY, maxZ,  maxX, minY, maxZ);
+    line(maxX, minY, maxZ,  maxX, maxY, maxZ);
+    line(maxX, maxY, maxZ,  minX, maxY, maxZ);
+    line(minX, maxY, maxZ,  minX, minY, maxZ);
+    // Verticals
+    line(minX, minY, minZ,  minX, minY, maxZ);
+    line(maxX, minY, minZ,  maxX, minY, maxZ);
+    line(maxX, maxY, minZ,  maxX, maxY, maxZ);
+    line(minX, maxY, minZ,  minX, maxY, maxZ);
+    popStyle();
+}
+
 //--------------- HUD Globals ---------------------------
 
 // Flash state for key press visualization in the HUD
@@ -68,6 +101,7 @@ void printMetaData() {
     y += yi; ctrlLine(y, "d",       "Lines: " + drawLines,                                  flashKey == 'd');
     y += yi; ctrlLine(y, "c",       "Background: " + drawBG,                                flashKey == 'c');
     y += yi; ctrlLine(y, "t",       "Axis: " + isAxis,                                     flashKey == 't');
+    y += yi; ctrlLine(y, "f",       "Bounds: " + isShowingBounds,                          flashKey == 'f');
     y += yi; ctrlLine(y, "p",       "Write out to file",                                    flashKey == 'p');
     y += yi; ctrlLine(y, "→",       "Camera spin X: " + isDoingCameraSpinX,                flashKeyCode == RIGHT);
     y += yi; ctrlLine(y, "↓",       "Camera spin Y: " + isDoingCameraSpinY,                flashKeyCode == DOWN);
