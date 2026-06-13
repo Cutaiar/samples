@@ -1,4 +1,4 @@
-# Samples
+# samples
 
 <p align="center">
   <img src="/extra/Sample.gif" />
