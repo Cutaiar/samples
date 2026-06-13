@@ -5,6 +5,51 @@ void showAxis() {
     line(0, 0, -AXIS_LENGTH, 0, 0, AXIS_LENGTH); //z
 }
 
+void showBounds() {
+    // Compute current frame extents
+    float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
+    float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
+    float minZ = Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
+    for (Particle p : particles) {
+        if (p.loc.x < minX) minX = p.loc.x;
+        if (p.loc.x > maxX) maxX = p.loc.x;
+        if (p.loc.y < minY) minY = p.loc.y;
+        if (p.loc.y > maxY) maxY = p.loc.y;
+        if (p.loc.z < minZ) minZ = p.loc.z;
+        if (p.loc.z > maxZ) maxZ = p.loc.z;
+    }
+
+    if (boundsMode == 2) {
+        // Expand running max extents
+        maxBoundsMinX = min(maxBoundsMinX, minX);  maxBoundsMaxX = max(maxBoundsMaxX, maxX);
+        maxBoundsMinY = min(maxBoundsMinY, minY);  maxBoundsMaxY = max(maxBoundsMaxY, maxY);
+        maxBoundsMinZ = min(maxBoundsMinZ, minZ);  maxBoundsMaxZ = max(maxBoundsMaxZ, maxZ);
+        minX = maxBoundsMinX;  maxX = maxBoundsMaxX;
+        minY = maxBoundsMinY;  maxY = maxBoundsMaxY;
+        minZ = maxBoundsMinZ;  maxZ = maxBoundsMaxZ;
+    }
+
+    pushStyle();
+    noFill();
+    stroke(255, 60);
+    // Bottom face
+    line(minX, minY, minZ,  maxX, minY, minZ);
+    line(maxX, minY, minZ,  maxX, maxY, minZ);
+    line(maxX, maxY, minZ,  minX, maxY, minZ);
+    line(minX, maxY, minZ,  minX, minY, minZ);
+    // Top face
+    line(minX, minY, maxZ,  maxX, minY, maxZ);
+    line(maxX, minY, maxZ,  maxX, maxY, maxZ);
+    line(maxX, maxY, maxZ,  minX, maxY, maxZ);
+    line(minX, maxY, maxZ,  minX, minY, maxZ);
+    // Verticals
+    line(minX, minY, minZ,  minX, minY, maxZ);
+    line(maxX, minY, minZ,  maxX, minY, maxZ);
+    line(maxX, maxY, minZ,  maxX, maxY, maxZ);
+    line(minX, maxY, minZ,  minX, maxY, maxZ);
+    popStyle();
+}
+
 //--------------- HUD Globals ---------------------------
 
 // Flash state for key press visualization in the HUD
@@ -64,10 +109,12 @@ void printMetaData() {
     y += yi; ctrlLine(y, "z / x",   "Amplitude: " + amp,                                    flashKey == 'z' || flashKey == 'x');
     y += yi; ctrlLine(y, "w",       "Distance Threshold: " + line_thresh,                   flashKey == 'w');
     y += yi; ctrlLine(y, "b / n",   "Z Thickness: " + z_thickness,                         flashKey == 'b' || flashKey == 'n');
+    y += yi; ctrlLine(y, "k",       "Z Algo: " + zMode + " (0=wave*amp 1=wave*z 2=flat 3=noise)", flashKey == 'k');
     y += yi; ctrlLine(y, "e",       "Elements: " + drawElements,                            flashKey == 'e');
     y += yi; ctrlLine(y, "d",       "Lines: " + drawLines,                                  flashKey == 'd');
     y += yi; ctrlLine(y, "c",       "Background: " + drawBG,                                flashKey == 'c');
     y += yi; ctrlLine(y, "t",       "Axis: " + isAxis,                                     flashKey == 't');
+    y += yi; ctrlLine(y, "f",       "Bounds: " + (boundsMode == 0 ? "off" : boundsMode == 1 ? "dynamic" : "max"), flashKey == 'f');
     y += yi; ctrlLine(y, "p",       "Write out to file",                                    flashKey == 'p');
     y += yi; ctrlLine(y, "→",       "Camera spin X: " + isDoingCameraSpinX,                flashKeyCode == RIGHT);
     y += yi; ctrlLine(y, "↓",       "Camera spin Y: " + isDoingCameraSpinY,                flashKeyCode == DOWN);

@@ -74,7 +74,14 @@ boolean update = true;
 boolean drawElements = false;
 boolean drawLines = true;
 boolean isAxis = true;
+int boundsMode = 0; // 0=off, 1=dynamic, 2=max
+int zMode = 1;      // 0=wave*amp, 1=wave*z_thickness, 2=flat, 3=noise
 boolean isShowingMetaData = true;
+
+// Running max extents for bounds max mode — reset on audio restart
+float maxBoundsMinX, maxBoundsMaxX;
+float maxBoundsMinY, maxBoundsMaxY;
+float maxBoundsMinZ, maxBoundsMaxZ;
 boolean isDoingCameraSpinX = false;
 boolean isDoingCameraSpinY = false;
 boolean isDoingCameraSpinZ = false;
@@ -166,6 +173,13 @@ void initParticles(AudioSource source) {
     for (int i = 0; i < source.bufferSize(); i++) {
         particles[i] = new Particle();
     }
+    resetMaxBounds();
+}
+
+void resetMaxBounds() {
+    maxBoundsMinX = Float.MAX_VALUE;  maxBoundsMaxX = -Float.MAX_VALUE;
+    maxBoundsMinY = Float.MAX_VALUE;  maxBoundsMaxY = -Float.MAX_VALUE;
+    maxBoundsMinZ = Float.MAX_VALUE;  maxBoundsMaxZ = -Float.MAX_VALUE;
 }
 
 //--------------- Main draw loop ---------------------------
@@ -182,6 +196,7 @@ void draw() {
     if (drawBG) background(0);
     if (isShowingMetaData) printMetaData();
     if (isAxis) showAxis();
+    if (boundsMode > 0) showBounds();
     if (isDoingCameraSpinX) cameraSpinX();
     if (isDoingCameraSpinY) cameraSpinY();
     if (isDoingCameraSpinZ) cameraSpinZ();
@@ -195,7 +210,7 @@ void draw() {
             // Update particle position and size
             xt = origin.x+activeSource.left.get(i)*amp;
             yt = origin.y+activeSource.right.get(i)*amp;
-            zt = origin.z + calculateZ(1, i);
+            zt = origin.z + calculateZ(zMode, i);
             zloc+=.1;
             particles[i].update(3, xt, yt, zt);
         }
@@ -332,6 +347,9 @@ void keyPressed() {
     if (key == 'n') z_thickness += 15;
     if (key == 'b') z_thickness -= 15;
 
+    // Cycle Z algorithm
+    if (key == 'k') zMode = (zMode + 1) % 4;
+
     // Toggle Element draw
     if (key == 'e') {
         drawElements = !drawElements;
@@ -340,6 +358,11 @@ void keyPressed() {
     // Toggle Axis draw
     if (key == 't') {
         isAxis = !isAxis;
+    }
+
+    // Cycle bounds box: off → dynamic → max → off
+    if (key == 'f') {
+        boundsMode = (boundsMode + 1) % 3;
     }
 
     // Write out
