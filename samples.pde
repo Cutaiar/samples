@@ -66,6 +66,7 @@ Particle[] particles;
 PVector origin;
 
 // Booleans to control playback and visualization
+boolean isMonoInput = true; // Mono = microphone, Stereo = system audio (e.g. BlackHole)
 boolean isLiveMode = false;
 boolean recording = false;
 boolean drawBG = true;
@@ -150,7 +151,7 @@ void switchToLiveMode() {
     }
     if (out != null) { out.close(); out = null; }
 
-    input = minim.getLineIn(Minim.STEREO, BUFFER_SIZE);
+    input = minim.getLineIn(isMonoInput ? Minim.MONO : Minim.STEREO, BUFFER_SIZE);
     isLiveMode = true;
     update = true;
     initParticles(input);  // particles ready before draw() can see activeSource
@@ -162,7 +163,7 @@ void restartAudio() {
         // Close and reopen so Minim picks up the current system input device
         activeSource = null;
         if (input != null) { input.close(); input = null; }
-        input = minim.getLineIn(Minim.STEREO, BUFFER_SIZE);
+        input = minim.getLineIn(isMonoInput ? Minim.MONO : Minim.STEREO, BUFFER_SIZE);
         initParticles(input);
         activeSource = input;
     } else if (filePlayer != null) {
@@ -357,6 +358,9 @@ void printMetaData() {
     y += yi;
     y += yi; ctrlLine(y, "m",       "Switch mode: " + (isLiveMode ? "live" : "file"),        flashKey == 'm');
     y += yi; ctrlLine(y, "r",       isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
+    if (isLiveMode) {
+        y += yi; ctrlLine(y, "i",     "Input: " + (isMonoInput ? "Mono (mic)" : "Stereo (system/BlackHole)"), flashKey == 'i');
+    }
     if (!isLiveMode) {
         int posSec = filePlayer.position() / 1000;
         y += yi; ctrlLine(y, "a / s", "Position: " + int(posSec / 60) + ":" + nf(posSec % 60, 2), flashKey == 'a' || flashKey == 's');
@@ -449,6 +453,12 @@ void keyPressed() {
     }
 
     if (key == '.') camera.reset(CAMERA_RESET_TIME);
+
+    // Toggle mono/stereo input channels and restart audio
+    if (key == 'i' && isLiveMode) {
+        isMonoInput = !isMonoInput;
+        restartAudio();
+    }
 
     // Reconnect input (live) or restart from beginning (file)
     if (key == 'r') {
