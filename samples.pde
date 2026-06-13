@@ -84,6 +84,9 @@ int flashKeyCode = -1;
 int flashUntil = 0;
 static final int FLASH_MS = 150;
 
+// Left padding for the entire HUD
+static final int HUD_PAD_LEFT = 10;
+
 // Fixed x offset for the label column in the HUD (must clear the widest hint e.g. "z / x")
 static final int HINT_COL_W = 60;
 
@@ -338,15 +341,15 @@ void printMetaData() {
     // Mode header
     fill(255);
     if (isLiveMode) {
-        text("Mode: Live input", 5, y);
+        text("Mode: Live input", HUD_PAD_LEFT, y);
     } else {
-        text("Mode: File -- " + meta.fileName(), 5, y);
+        text("Mode: File -- " + meta.fileName(), HUD_PAD_LEFT, y);
         y += yi; infoLine(y, "Length: " + meta.length() + "ms   Title: " + meta.title() + "   Author: " + meta.author());
         y += yi; ctrlLine(y, "a / s", "Position: " + filePlayer.position(), flashKey == 'a' || flashKey == 's');
         y += yi; ctrlLine(y, "Space", "Toggle playback: " + filePlayer.isPlaying(), flashKey == ' ');
     }
 
-    y += yi; fill(255); text("Buffersize: " + activeSource.bufferSize() + "   Framerate: " + int(frameRate), 5, y);
+    y += yi; fill(255); text("Buffersize: " + activeSource.bufferSize() + "   Framerate: " + int(frameRate), HUD_PAD_LEFT, y);
 
     y += yi;
     y += yi; ctrlLine(y, "m",     "Switch mode: " + (isLiveMode ? "live" : "file"),      flashKey == 'm');
@@ -378,7 +381,7 @@ void printMetaData() {
  */
 void infoLine(int y, String content) {
     fill(170);
-    text(content, 5, y);
+    text(content, HUD_PAD_LEFT, y);
 }
 
 /*
@@ -390,16 +393,16 @@ void ctrlLine(int y, String hint, String label, boolean flashing) {
         pushStyle();
         noStroke();
         fill(255, 220, 80, 50);
-        rect(0, y - 12, HINT_COL_W + textWidth(label) + 10, 15);
+        rect(HUD_PAD_LEFT - 5, y - 12, HINT_COL_W + textWidth(label) + 10, 15);
         popStyle();
         fill(255, 220, 80);
-        text(hint, 5, y);
-        text(label, 5 + HINT_COL_W, y);
+        text(hint, HUD_PAD_LEFT, y);
+        text(label, HUD_PAD_LEFT + HINT_COL_W, y);
     } else {
         fill(140);
-        text(hint, 5, y);
+        text(hint, HUD_PAD_LEFT, y);
         fill(255);
-        text(label, 5 + HINT_COL_W, y);
+        text(label, HUD_PAD_LEFT + HINT_COL_W, y);
     }
 }
 
