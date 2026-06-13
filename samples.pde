@@ -344,7 +344,7 @@ void printMetaData() {
         y += yi; ctrlLine(y, "Space", "Toggle playback: " + filePlayer.isPlaying(), flashKey == ' ');
     }
 
-    y += yi; infoLine(y, "Buffersize: " + activeSource.bufferSize());
+    y += yi; infoLine(y, "Buffersize: " + activeSource.bufferSize() + "   Framerate: " + int(frameRate));
     y += yi; ctrlLine(y, "m",     "Switch mode: " + (isLiveMode ? "live" : "file"),      flashKey == 'm');
     y += yi; ctrlLine(y, "r",     isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
     y += yi; ctrlLine(y, "/",     "Toggle this panel",                               flashKey == '/');
@@ -364,7 +364,6 @@ void printMetaData() {
     y += yi; ctrlLine(y, "↑",  "Camera spin Z: " + isDoingCameraSpinZ,             flashKeyCode == UP);
     y += yi; ctrlLine(y, ".",  "Reset Camera",                                      flashKey == '.');
     y += yi; ctrlLine(y, ",",  "Recording: " + recording,                           flashKey == ',');
-    y += yi; infoLine(y, "Framerate: " + int(frameRate));
 
     camera.endHUD();
 }
