@@ -109,6 +109,7 @@ void printMetaData() {
     y += yi; ctrlLine(y, "z / x",   "Amplitude: " + amp,                                    flashKey == 'z' || flashKey == 'x');
     y += yi; ctrlLine(y, "w",       "Distance Threshold: " + line_thresh,                   flashKey == 'w');
     y += yi; ctrlLine(y, "b / n",   "Z Thickness: " + z_thickness,                         flashKey == 'b' || flashKey == 'n');
+    y += yi; ctrlLine(y, "k",       "Z Algo: " + zMode + " (0=wave*amp 1=wave*z 2=flat 3=noise)", flashKey == 'k');
     y += yi; ctrlLine(y, "e",       "Elements: " + drawElements,                            flashKey == 'e');
     y += yi; ctrlLine(y, "d",       "Lines: " + drawLines,                                  flashKey == 'd');
     y += yi; ctrlLine(y, "c",       "Background: " + drawBG,                                flashKey == 'c');
