@@ -356,7 +356,7 @@ void printMetaData() {
     y += yi; ctrlLine(y, "r",     isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
     y += yi; ctrlLine(y, "/",     "Toggle this panel",                               flashKey == '/');
     y += yi; ctrlLine(y, "z / x", "Amplitude: " + amp,                              flashKey == 'z' || flashKey == 'x');
-    y += yi; ctrlLine(y, "q / w", "Distance Threshold: " + line_thresh,             flashKey == 'q' || flashKey == 'w');
+    y += yi; ctrlLine(y, "w",     "Distance Threshold: " + line_thresh,             flashKey == 'w');
     y += yi; ctrlLine(y, "b / n", "Z Thickness: " + z_thickness,                   flashKey == 'b' || flashKey == 'n');
     y += yi; ctrlLine(y, "e",     "Elements: " + drawElements,                      flashKey == 'e');
     y += yi; ctrlLine(y, "d",     "Lines: " + drawLines,                            flashKey == 'd');
@@ -371,7 +371,7 @@ void printMetaData() {
     y += yi; ctrlLine(y, "↑",  "Camera spin Z: " + isDoingCameraSpinZ,             flashKeyCode == UP);
     y += yi; ctrlLine(y, ".",  "Reset Camera",                                      flashKey == '.');
     y += yi; ctrlLine(y, ",",  "Recording: " + recording,                           flashKey == ',');
-    y += yi; ctrlLine(y, "Esc", "Quit",                                             key == ESC);
+    y += yi; ctrlLine(y, "Esc / q", "Quit",                                         key == ESC || key == 'q');
 
     camera.endHUD();
 }
@@ -477,7 +477,6 @@ void keyPressed() {
 
     // Adjust Threshold for lines
     if (key == 'w') line_thresh += 15;
-    if (key == 'q') line_thresh -= 15;
 
     // Adjust Threshold for lines
     if (key == 'n') z_thickness += 15;
@@ -509,7 +508,7 @@ void keyPressed() {
     }
 
     // Quit
-    if (key == ESC) {
+    if (key == ESC || key == 'q') {
         key = 0; // prevent Processing's default ESC-stops-sketch from firing twice
         exit();
     }
