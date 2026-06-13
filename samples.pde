@@ -338,40 +338,48 @@ void printMetaData() {
     int yi = 15;
     int y = 40 + yi * 2; // offset clears the window title bar, plus top padding
 
-    // Mode header
+    // Info section
     fill(255);
     if (isLiveMode) {
         text("Mode: Live input", HUD_PAD_LEFT, y);
     } else {
-        text("Mode: File -- " + meta.fileName(), HUD_PAD_LEFT, y);
-        y += yi; infoLine(y, "Length: " + meta.length() + "ms   Title: " + meta.title() + "   Author: " + meta.author());
-        y += yi; ctrlLine(y, "a / s", "Position: " + filePlayer.position(), flashKey == 'a' || flashKey == 's');
-        y += yi; ctrlLine(y, "Space", "Toggle playback: " + filePlayer.isPlaying(), flashKey == ' ');
+        String fname = meta.fileName();
+        fname = fname.substring(fname.lastIndexOf('/') + 1);
+        text("Mode: File -- " + fname, HUD_PAD_LEFT, y);
+        int totalSec = meta.length() / 1000;
+        String duration = int(totalSec / 60) + ":" + nf(totalSec % 60, 2);
+        y += yi; ctrlLine(y, "Length", duration, false);
     }
+    y += yi; fill(255); text("Buffersize: " + activeSource.bufferSize(), HUD_PAD_LEFT, y);
+    y += yi; fill(255); text("Framerate: " + int(frameRate), HUD_PAD_LEFT, y);
 
-    y += yi; fill(255); text("Buffersize: " + activeSource.bufferSize() + "   Framerate: " + int(frameRate), HUD_PAD_LEFT, y);
-
+    // Controls section
     y += yi;
-    y += yi; ctrlLine(y, "m",     "Switch mode: " + (isLiveMode ? "live" : "file"),      flashKey == 'm');
-    y += yi; ctrlLine(y, "r",     isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
-    y += yi; ctrlLine(y, "/",     "Toggle this panel",                               flashKey == '/');
-    y += yi; ctrlLine(y, "z / x", "Amplitude: " + amp,                              flashKey == 'z' || flashKey == 'x');
-    y += yi; ctrlLine(y, "w",     "Distance Threshold: " + line_thresh,             flashKey == 'w');
-    y += yi; ctrlLine(y, "b / n", "Z Thickness: " + z_thickness,                   flashKey == 'b' || flashKey == 'n');
-    y += yi; ctrlLine(y, "e",     "Elements: " + drawElements,                      flashKey == 'e');
-    y += yi; ctrlLine(y, "d",     "Lines: " + drawLines,                            flashKey == 'd');
-    y += yi; ctrlLine(y, "c",     "Background: " + drawBG,                          flashKey == 'c');
-    y += yi; ctrlLine(y, "t",     "Axis: " + isAxis,                               flashKey == 't');
-    if (isLiveMode) {
-        y += yi; ctrlLine(y, "Space", "Freeze update: " + !update,                  flashKey == ' ');
+    y += yi; ctrlLine(y, "m",       "Switch mode: " + (isLiveMode ? "live" : "file"),        flashKey == 'm');
+    y += yi; ctrlLine(y, "r",       isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
+    if (!isLiveMode) {
+        y += yi; ctrlLine(y, "a / s", "Position: " + filePlayer.position(),                  flashKey == 'a' || flashKey == 's');
     }
-    y += yi; ctrlLine(y, "p",  "Write out to file",                                 flashKey == 'p');
-    y += yi; ctrlLine(y, "→",  "Camera spin X: " + isDoingCameraSpinX,             flashKeyCode == RIGHT);
-    y += yi; ctrlLine(y, "↓",  "Camera spin Y: " + isDoingCameraSpinY,             flashKeyCode == DOWN);
-    y += yi; ctrlLine(y, "↑",  "Camera spin Z: " + isDoingCameraSpinZ,             flashKeyCode == UP);
-    y += yi; ctrlLine(y, ".",  "Reset Camera",                                      flashKey == '.');
-    y += yi; ctrlLine(y, ",",  "Recording: " + recording,                           flashKey == ',');
-    y += yi; ctrlLine(y, "Esc / q", "Quit",                                         key == ESC || key == 'q');
+    if (isLiveMode) {
+        y += yi; ctrlLine(y, "Space", "Freeze update: " + !update,                           flashKey == ' ');
+    } else {
+        y += yi; ctrlLine(y, "Space", "Toggle playback: " + filePlayer.isPlaying(),          flashKey == ' ');
+    }
+    y += yi; ctrlLine(y, "/",       "Toggle this panel",                                     flashKey == '/');
+    y += yi; ctrlLine(y, "z / x",   "Amplitude: " + amp,                                    flashKey == 'z' || flashKey == 'x');
+    y += yi; ctrlLine(y, "w",       "Distance Threshold: " + line_thresh,                   flashKey == 'w');
+    y += yi; ctrlLine(y, "b / n",   "Z Thickness: " + z_thickness,                         flashKey == 'b' || flashKey == 'n');
+    y += yi; ctrlLine(y, "e",       "Elements: " + drawElements,                            flashKey == 'e');
+    y += yi; ctrlLine(y, "d",       "Lines: " + drawLines,                                  flashKey == 'd');
+    y += yi; ctrlLine(y, "c",       "Background: " + drawBG,                                flashKey == 'c');
+    y += yi; ctrlLine(y, "t",       "Axis: " + isAxis,                                     flashKey == 't');
+    y += yi; ctrlLine(y, "p",       "Write out to file",                                    flashKey == 'p');
+    y += yi; ctrlLine(y, "→",       "Camera spin X: " + isDoingCameraSpinX,                flashKeyCode == RIGHT);
+    y += yi; ctrlLine(y, "↓",       "Camera spin Y: " + isDoingCameraSpinY,                flashKeyCode == DOWN);
+    y += yi; ctrlLine(y, "↑",       "Camera spin Z: " + isDoingCameraSpinZ,                flashKeyCode == UP);
+    y += yi; ctrlLine(y, ".",       "Reset Camera",                                         flashKey == '.');
+    y += yi; ctrlLine(y, ",",       "Recording: " + recording,                              flashKey == ',');
+    y += yi; ctrlLine(y, "Esc / q", "Quit",                                                 key == ESC || key == 'q');
 
     camera.endHUD();
 }
