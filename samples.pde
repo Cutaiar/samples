@@ -346,7 +346,9 @@ void printMetaData() {
         y += yi; ctrlLine(y, "Space", "Toggle playback: " + filePlayer.isPlaying(), flashKey == ' ');
     }
 
-    y += yi; infoLine(y, "Buffersize: " + activeSource.bufferSize() + "   Framerate: " + int(frameRate));
+    y += yi; fill(255); text("Buffersize: " + activeSource.bufferSize() + "   Framerate: " + int(frameRate), 5, y);
+
+    y += yi;
     y += yi; ctrlLine(y, "m",     "Switch mode: " + (isLiveMode ? "live" : "file"),      flashKey == 'm');
     y += yi; ctrlLine(y, "r",     isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
     y += yi; ctrlLine(y, "/",     "Toggle this panel",                               flashKey == '/');
@@ -366,6 +368,7 @@ void printMetaData() {
     y += yi; ctrlLine(y, "↑",  "Camera spin Z: " + isDoingCameraSpinZ,             flashKeyCode == UP);
     y += yi; ctrlLine(y, ".",  "Reset Camera",                                      flashKey == '.');
     y += yi; ctrlLine(y, ",",  "Recording: " + recording,                           flashKey == ',');
+    y += yi; ctrlLine(y, "Esc", "Quit",                                             key == ESC);
 
     camera.endHUD();
 }
@@ -500,6 +503,12 @@ void keyPressed() {
     // Toggle BG draw
     if (key == 'c') {
         drawBG = !drawBG;
+    }
+
+    // Quit
+    if (key == ESC) {
+        key = 0; // prevent Processing's default ESC-stops-sketch from firing twice
+        exit();
     }
 }
 
