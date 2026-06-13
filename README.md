@@ -42,3 +42,5 @@ BlackHole acts as a loopback device. To hear audio through your speakers *and* f
 5. Set **BlackHole 2ch** as your input in **System Settings → Sound → Input**
 
 Now any audio playing on your Mac will drive the visualization.
+
+> **Note:** When you're done, switch your output back to your speakers/headphones and your input back to the microphone. The Multi-Output Device has no volume control, so keyboard and menu bar volume keys won't work while it's active.
