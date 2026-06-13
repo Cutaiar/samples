@@ -348,7 +348,7 @@ void printMetaData() {
         text("Mode: File -- " + fname, HUD_PAD_LEFT, y);
         int totalSec = meta.length() / 1000;
         String duration = int(totalSec / 60) + ":" + nf(totalSec % 60, 2);
-        y += yi; ctrlLine(y, "Length", duration, false);
+        y += yi; fill(170); text("Length", HUD_PAD_LEFT, y); text(duration, HUD_PAD_LEFT + HINT_COL_W, y);
     }
     y += yi; fill(255); text("Buffersize: " + activeSource.bufferSize(), HUD_PAD_LEFT, y);
     y += yi; fill(255); text("Framerate: " + int(frameRate), HUD_PAD_LEFT, y);
@@ -358,7 +358,8 @@ void printMetaData() {
     y += yi; ctrlLine(y, "m",       "Switch mode: " + (isLiveMode ? "live" : "file"),        flashKey == 'm');
     y += yi; ctrlLine(y, "r",       isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
     if (!isLiveMode) {
-        y += yi; ctrlLine(y, "a / s", "Position: " + filePlayer.position(),                  flashKey == 'a' || flashKey == 's');
+        int posSec = filePlayer.position() / 1000;
+        y += yi; ctrlLine(y, "a / s", "Position: " + int(posSec / 60) + ":" + nf(posSec % 60, 2), flashKey == 'a' || flashKey == 's');
     }
     if (isLiveMode) {
         y += yi; ctrlLine(y, "Space", "Freeze update: " + !update,                           flashKey == ' ');
