@@ -10,12 +10,17 @@ Additionally, I've built in some authoring tools which allow me to pause a song 
 
 ## Prerequisites
 
-Install the following libraries via the Processing package manager (**Sketch → Import Library → Manage Libraries**):
-
-- **Minim** — audio playback and input
-- **PeasyCam** — 3D camera control
+1. Install [Processing](https://processing.org/download)
+2. Install the following libraries via the Processing package manager (**Sketch → Import Library → Manage Libraries**):
+   - **Minim** — audio playback and input
+   - **PeasyCam** — 3D camera control
+3. Optionally install the `processing-java` CLI via **Tools → Install "processing-java" command line tool** in the Processing IDE
 
 ## Running
+
+```
+processing-java --sketch=/path/to/samples --run
+```
 
 On launch, a file picker appears. Pick an audio file (mp3 or wav) to visualize it, or **cancel** to go straight to live audio input mode. Press **m** at any time to switch between the two modes.
 
