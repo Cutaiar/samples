@@ -84,6 +84,9 @@ int flashKeyCode = -1;
 int flashUntil = 0;
 static final int FLASH_MS = 150;
 
+// Left padding for the entire HUD
+static final int HUD_PAD_LEFT = 10;
+
 // Fixed x offset for the label column in the HUD (must clear the widest hint e.g. "z / x")
 static final int HINT_COL_W = 60;
 
@@ -110,7 +113,7 @@ void setup() {
 
     // Create minim object
     minim = new Minim(this);
-    selectInput("Select an audio file (cancel for live input):", "fileSelected");
+    switchToLiveMode();
 }
 
 void fileSelected(File selection) {
@@ -182,8 +185,8 @@ void draw() {
     if (activeSource == null) {
         camera.beginHUD();
         fill(255);
-        text("Select an audio file, or cancel to use live input.", width/2 - 170, height/2);
-        text("Press m at any time to switch modes.", width/2 - 130, height/2 + 20);
+        text("Initializing audio...", width/2 - 80, height/2);
+        text("Press m to load a file.", width/2 - 80, height/2 + 20);
         camera.endHUD();
         return;
     }
@@ -333,39 +336,51 @@ void writeOutObj() {
 void printMetaData() {
     camera.beginHUD();
     int yi = 15;
-    int y = 40; // offset clears the window title bar
+    int y = 40 + yi * 2; // offset clears the window title bar, plus top padding
 
-    // Mode header
+    // Info section
     fill(255);
     if (isLiveMode) {
-        text("Mode: Live input", 5, y);
+        text("Mode: Live input", HUD_PAD_LEFT, y);
     } else {
-        text("Mode: File -- " + meta.fileName(), 5, y);
-        y += yi; infoLine(y, "Length: " + meta.length() + "ms   Title: " + meta.title() + "   Author: " + meta.author());
-        y += yi; ctrlLine(y, "a / s", "Position: " + filePlayer.position(), flashKey == 'a' || flashKey == 's');
-        y += yi; ctrlLine(y, "Space", "Toggle playback: " + filePlayer.isPlaying(), flashKey == ' ');
+        String fname = meta.fileName();
+        fname = fname.substring(fname.lastIndexOf('/') + 1);
+        text("Mode: File -- " + fname, HUD_PAD_LEFT, y);
+        int totalSec = meta.length() / 1000;
+        String duration = int(totalSec / 60) + ":" + nf(totalSec % 60, 2);
+        y += yi; fill(170); text("Length", HUD_PAD_LEFT, y); text(duration, HUD_PAD_LEFT + HINT_COL_W, y);
     }
+    y += yi; fill(255); text("Buffersize: " + activeSource.bufferSize(), HUD_PAD_LEFT, y);
+    y += yi; fill(255); text("Framerate: " + int(frameRate), HUD_PAD_LEFT, y);
 
-    y += yi; infoLine(y, "Buffersize: " + activeSource.bufferSize() + "   Framerate: " + int(frameRate));
-    y += yi; ctrlLine(y, "m",     "Switch mode: " + (isLiveMode ? "live" : "file"),      flashKey == 'm');
-    y += yi; ctrlLine(y, "r",     isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
-    y += yi; ctrlLine(y, "/",     "Toggle this panel",                               flashKey == '/');
-    y += yi; ctrlLine(y, "z / x", "Amplitude: " + amp,                              flashKey == 'z' || flashKey == 'x');
-    y += yi; ctrlLine(y, "q / w", "Distance Threshold: " + line_thresh,             flashKey == 'q' || flashKey == 'w');
-    y += yi; ctrlLine(y, "b / n", "Z Thickness: " + z_thickness,                   flashKey == 'b' || flashKey == 'n');
-    y += yi; ctrlLine(y, "e",     "Elements: " + drawElements,                      flashKey == 'e');
-    y += yi; ctrlLine(y, "d",     "Lines: " + drawLines,                            flashKey == 'd');
-    y += yi; ctrlLine(y, "c",     "Background: " + drawBG,                          flashKey == 'c');
-    y += yi; ctrlLine(y, "t",     "Axis: " + isAxis,                               flashKey == 't');
-    if (isLiveMode) {
-        y += yi; ctrlLine(y, "Space", "Freeze update: " + !update,                  flashKey == ' ');
+    // Controls section
+    y += yi;
+    y += yi; ctrlLine(y, "m",       "Switch mode: " + (isLiveMode ? "live" : "file"),        flashKey == 'm');
+    y += yi; ctrlLine(y, "r",       isLiveMode ? "Reconnect input" : "Restart from beginning", flashKey == 'r');
+    if (!isLiveMode) {
+        int posSec = filePlayer.position() / 1000;
+        y += yi; ctrlLine(y, "a / s", "Position: " + int(posSec / 60) + ":" + nf(posSec % 60, 2), flashKey == 'a' || flashKey == 's');
     }
-    y += yi; ctrlLine(y, "p",  "Write out to file",                                 flashKey == 'p');
-    y += yi; ctrlLine(y, "→",  "Camera spin X: " + isDoingCameraSpinX,             flashKeyCode == RIGHT);
-    y += yi; ctrlLine(y, "↓",  "Camera spin Y: " + isDoingCameraSpinY,             flashKeyCode == DOWN);
-    y += yi; ctrlLine(y, "↑",  "Camera spin Z: " + isDoingCameraSpinZ,             flashKeyCode == UP);
-    y += yi; ctrlLine(y, ".",  "Reset Camera",                                      flashKey == '.');
-    y += yi; ctrlLine(y, ",",  "Recording: " + recording,                           flashKey == ',');
+    if (isLiveMode) {
+        y += yi; ctrlLine(y, "Space", "Freeze update: " + !update,                           flashKey == ' ');
+    } else {
+        y += yi; ctrlLine(y, "Space", "Toggle playback: " + filePlayer.isPlaying(),          flashKey == ' ');
+    }
+    y += yi; ctrlLine(y, "/",       "Toggle this panel",                                     flashKey == '/');
+    y += yi; ctrlLine(y, "z / x",   "Amplitude: " + amp,                                    flashKey == 'z' || flashKey == 'x');
+    y += yi; ctrlLine(y, "w",       "Distance Threshold: " + line_thresh,                   flashKey == 'w');
+    y += yi; ctrlLine(y, "b / n",   "Z Thickness: " + z_thickness,                         flashKey == 'b' || flashKey == 'n');
+    y += yi; ctrlLine(y, "e",       "Elements: " + drawElements,                            flashKey == 'e');
+    y += yi; ctrlLine(y, "d",       "Lines: " + drawLines,                                  flashKey == 'd');
+    y += yi; ctrlLine(y, "c",       "Background: " + drawBG,                                flashKey == 'c');
+    y += yi; ctrlLine(y, "t",       "Axis: " + isAxis,                                     flashKey == 't');
+    y += yi; ctrlLine(y, "p",       "Write out to file",                                    flashKey == 'p');
+    y += yi; ctrlLine(y, "→",       "Camera spin X: " + isDoingCameraSpinX,                flashKeyCode == RIGHT);
+    y += yi; ctrlLine(y, "↓",       "Camera spin Y: " + isDoingCameraSpinY,                flashKeyCode == DOWN);
+    y += yi; ctrlLine(y, "↑",       "Camera spin Z: " + isDoingCameraSpinZ,                flashKeyCode == UP);
+    y += yi; ctrlLine(y, ".",       "Reset Camera",                                         flashKey == '.');
+    y += yi; ctrlLine(y, ",",       "Recording: " + recording,                              flashKey == ',');
+    y += yi; ctrlLine(y, "Esc / q", "Quit",                                                 key == ESC || key == 'q');
 
     camera.endHUD();
 }
@@ -375,7 +390,7 @@ void printMetaData() {
  */
 void infoLine(int y, String content) {
     fill(170);
-    text(content, 5, y);
+    text(content, HUD_PAD_LEFT, y);
 }
 
 /*
@@ -387,16 +402,16 @@ void ctrlLine(int y, String hint, String label, boolean flashing) {
         pushStyle();
         noStroke();
         fill(255, 220, 80, 50);
-        rect(0, y - 12, HINT_COL_W + textWidth(label) + 10, 15);
+        rect(HUD_PAD_LEFT - 5, y - 12, HINT_COL_W + textWidth(label) + 10, 15);
         popStyle();
         fill(255, 220, 80);
-        text(hint, 5, y);
-        text(label, 5 + HINT_COL_W, y);
+        text(hint, HUD_PAD_LEFT, y);
+        text(label, HUD_PAD_LEFT + HINT_COL_W, y);
     } else {
         fill(140);
-        text(hint, 5, y);
+        text(hint, HUD_PAD_LEFT, y);
         fill(255);
-        text(label, 5 + HINT_COL_W, y);
+        text(label, HUD_PAD_LEFT + HINT_COL_W, y);
     }
 }
 
@@ -471,7 +486,6 @@ void keyPressed() {
 
     // Adjust Threshold for lines
     if (key == 'w') line_thresh += 15;
-    if (key == 'q') line_thresh -= 15;
 
     // Adjust Threshold for lines
     if (key == 'n') z_thickness += 15;
@@ -500,6 +514,12 @@ void keyPressed() {
     // Toggle BG draw
     if (key == 'c') {
         drawBG = !drawBG;
+    }
+
+    // Quit
+    if (key == ESC || key == 'q') {
+        key = 0; // prevent Processing's default ESC-stops-sketch from firing twice
+        exit();
     }
 }
 
