@@ -145,7 +145,7 @@ void switchToLiveMode() {
     }
     if (out != null) { out.close(); out = null; }
 
-    input = minim.getLineIn(Minim.MONO, BUFFER_SIZE);
+    input = minim.getLineIn(Minim.STEREO, BUFFER_SIZE);
     isLiveMode = true;
     update = true;
     initParticles(input);  // particles ready before draw() can see activeSource
@@ -157,7 +157,7 @@ void restartAudio() {
         // Close and reopen so Minim picks up the current system input device
         activeSource = null;
         if (input != null) { input.close(); input = null; }
-        input = minim.getLineIn(Minim.MONO, BUFFER_SIZE);
+        input = minim.getLineIn(Minim.STEREO, BUFFER_SIZE);
         initParticles(input);
         activeSource = input;
     } else if (filePlayer != null) {
@@ -331,7 +331,7 @@ void writeOutObj() {
 void printMetaData() {
     camera.beginHUD();
     int yi = 15;
-    int y = yi;
+    int y = 40; // offset clears the window title bar
 
     // Mode header
     fill(255);
