@@ -86,14 +86,18 @@ float zloc;
 
 void setup() {
     background(0);
+    //size(1920, 1080, P3D);
     fullScreen(P3D);
 
+    //Set up camera
     camera = new PeasyCam(this, 1000);
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(0,0,0);
     camera.setWheelScale(0.1); // Only for iMac
 
+    // Set origin
     origin = new PVector(0, 0, 0);
 
+    // Create minim object
     minim = new Minim(this);
     selectInput("Select an audio file (cancel for live input):", "fileSelected");
 }
@@ -103,6 +107,9 @@ void fileSelected(File selection) {
         switchToLiveMode();
         return;
     }
+
+    // Null first so draw() shows the waiting screen while we switch
+    activeSource = null;
     if (input != null) { input.close(); input = null; }
 
     filePlayer = new FilePlayer(minim.loadFileStream(selection.getAbsolutePath(), BUFFER_SIZE, true));
@@ -113,12 +120,14 @@ void fileSelected(File selection) {
     rateControl.setInterpolation(true);
 
     isLiveMode = false;
+    initParticles(out);  // particles ready before draw() can see activeSource
     activeSource = out;
-    initParticles();
     filePlayer.play();
 }
 
 void switchToLiveMode() {
+    // Null first so draw() shows the waiting screen while we switch
+    activeSource = null;
     if (filePlayer != null) {
         filePlayer.close();
         filePlayer = null;
@@ -129,14 +138,14 @@ void switchToLiveMode() {
 
     input = minim.getLineIn(Minim.MONO, BUFFER_SIZE);
     isLiveMode = true;
-    activeSource = input;
     update = true;
-    initParticles();
+    initParticles(input);  // particles ready before draw() can see activeSource
+    activeSource = input;
 }
 
-void initParticles() {
-    particles = new Particle[activeSource.bufferSize()];
-    for (int i = 0; i < activeSource.bufferSize(); i++) {
+void initParticles(AudioSource source) {
+    particles = new Particle[source.bufferSize()];
+    for (int i = 0; i < source.bufferSize(); i++) {
         particles[i] = new Particle();
     }
 }
@@ -159,21 +168,49 @@ void draw() {
     if (isDoingCameraSpinY) cameraSpinY();
     if (isDoingCameraSpinZ) cameraSpinZ();
 
-    // Main loop through buffer
-    for (int i = 0; i < activeSource.bufferSize(); i++) {
+    //Main loop through buffer
+    for (int i = 0; i < activeSource.bufferSize(); i+= 1) {
+
+        // Update fields based on buffer info
         if (update) {
-            xt = origin.x + activeSource.left.get(i) * amp;
-            yt = origin.y + activeSource.right.get(i) * amp;
+
+            // Update particle position and size
+            xt = origin.x+activeSource.left.get(i)*amp;
+            yt = origin.y+activeSource.right.get(i)*amp;
             zt = origin.z + calculateZ(1, i);
-            zloc += .1;
+            zloc+=.1;
             particles[i].update(3, xt, yt, zt);
+
+
+
+            //// Draw the elements (unused in this loop)
+            //if (drawElements) {
+            //particles[i].show();
+            //}
+            //for (Particle b : particles) {
+
+            //// Draw lines
+            //if (particles[i] != b && particles[i].loc.dist(b.loc) < thresh && drawLines) {
+            //pushStyle();
+            //stroke(255, 30);
+            ////stroke(mCol, lCol, rCol, 60);
+            //line(particles[i].loc.x, particles[i].loc.y, b.loc.x, b.loc.y);
+            //popStyle();
+            //}
         }
     }
 
+
     // A main loop through each particle (in relation to every other)
     for (Particle a : particles) {
-        if (drawElements) a.show();
+
+        // Draw the elements
+        if (drawElements) {
+            a.show();
+        }
         for (Particle b : particles) {
+
+            // Draw lines
             if (a != b && a.loc.dist(b.loc) < line_thresh && drawLines) {
                 pushStyle();
                 strokeWeight(2);
@@ -192,11 +229,16 @@ void draw() {
  */
 float calculateZ(int mode, int i) {
     switch (mode) {
-    case 0: return origin.z + (sin(zloc) + cos(zloc)) * amp;
-    case 1: return origin.z + (sin(zloc) + cos(zloc)) * z_thickness;
-    case 2: return amp / 10;
-    case 3: return noise(activeSource.mix.get(i)) * amp;
-    default: return 0;
+    case 0:
+        return origin.z + (sin(zloc) + cos(zloc))*amp;
+    case 1:
+        return origin.z + (sin(zloc) + cos(zloc))*z_thickness;
+    case 2:
+        return amp/10;
+    case 3:
+        return noise(activeSource.mix.get(i))*amp;
+    default:
+        return 0;
     }
 }
 
@@ -304,16 +346,29 @@ void printMetaData() {
  */
 void keyPressed() {
 
-    // Toggle info panel
-    if (key == '/') isShowingMetaData = !isShowingMetaData;
+    // Toggle MetaDataPanel
+    if (key == '/') {
+        isShowingMetaData = !isShowingMetaData;
+    }
 
-    // Toggle recording
-    if (key == ',') recording = !recording;
+    // Toggle Recording
+    if (key == ',') {
+        recording = !recording;
+    }
 
-    // Camera spin
-    if (keyCode == RIGHT) isDoingCameraSpinX = !isDoingCameraSpinX;
-    if (keyCode == DOWN)  isDoingCameraSpinY = !isDoingCameraSpinY;
-    if (keyCode == UP)    isDoingCameraSpinZ = !isDoingCameraSpinZ;
+    // Toggle automatic camera rotation
+    if (keyCode == RIGHT) {
+        isDoingCameraSpinX = !isDoingCameraSpinX;
+    }
+        // Toggle automatic camera rotation
+    if (keyCode == DOWN) {
+        isDoingCameraSpinY = !isDoingCameraSpinY;
+    }
+        // Toggle automatic camera rotation
+    if (keyCode == UP) {
+        isDoingCameraSpinZ = !isDoingCameraSpinZ;
+    }
+
     if (key == '.') camera.reset(CAMERA_RESET_TIME);
 
     // Switch between live input and file
@@ -335,32 +390,48 @@ void keyPressed() {
         }
     }
 
-    // Amplitude
+    // Adjust amplitude
     if (key == 'x') amp += 100;
     if (key == 'z') amp -= 100;
 
-    // File skip (file mode only)
+    // Adjust playback (file mode only)
     if (!isLiveMode && filePlayer != null) {
-        if (key == 's') filePlayer.skip(1000);
-        if (key == 'a') filePlayer.skip(-1000);
+        if ( key == 's' ) filePlayer.skip(1000);
+        if ( key == 'a' ) filePlayer.skip(-1000);
     }
 
-    // Line distance threshold
+    // Adjust Threshold for lines
     if (key == 'w') line_thresh += 15;
     if (key == 'q') line_thresh -= 15;
 
-    // Z thickness
+    // Adjust Threshold for lines
     if (key == 'n') z_thickness += 15;
     if (key == 'b') z_thickness -= 15;
 
-    // Toggles
-    if (key == 'e') drawElements = !drawElements;
-    if (key == 't') isAxis = !isAxis;
-    if (key == 'd') drawLines = !drawLines;
-    if (key == 'c') drawBG = !drawBG;
+    // Toggle Element draw
+    if (key == 'e') {
+        drawElements = !drawElements;
+    }
+
+    // Toggle Axis draw
+    if (key == 't') {
+        isAxis = !isAxis;
+    }
 
     // Write out
-    if (key == 'p') writeOutObj();
+    if (key == 'p') {
+        writeOutObj();
+    }
+
+    // Toggle Line draw
+    if (key == 'd') {
+        drawLines = !drawLines;
+    }
+
+    // Toggle BG draw
+    if (key == 'c') {
+        drawBG = !drawBG;
+    }
 }
 
 void cameraSpinX() { camera.rotateX(CAMERA_ROTATE_SPEED); }
