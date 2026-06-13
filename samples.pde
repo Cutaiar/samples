@@ -66,6 +66,7 @@ Particle[] particles;
 PVector origin;
 
 // Booleans to control playback and visualization
+boolean isMonoInput = true; // Mono = microphone, Stereo = system audio (e.g. BlackHole)
 boolean isLiveMode = false;
 boolean recording = false;
 boolean drawBG = true;
@@ -101,7 +102,7 @@ void setup() {
 
     // Create minim object
     minim = new Minim(this);
-    selectInput("Select an audio file (cancel for live input):", "fileSelected");
+    switchToLiveMode();
 }
 
 void fileSelected(File selection) {
@@ -138,7 +139,7 @@ void switchToLiveMode() {
     }
     if (out != null) { out.close(); out = null; }
 
-    input = minim.getLineIn(Minim.STEREO, BUFFER_SIZE);
+    input = minim.getLineIn(isMonoInput ? Minim.MONO : Minim.STEREO, BUFFER_SIZE);
     isLiveMode = true;
     update = true;
     initParticles(input);  // particles ready before draw() can see activeSource
@@ -150,7 +151,7 @@ void restartAudio() {
         // Close and reopen so Minim picks up the current system input device
         activeSource = null;
         if (input != null) { input.close(); input = null; }
-        input = minim.getLineIn(Minim.STEREO, BUFFER_SIZE);
+        input = minim.getLineIn(isMonoInput ? Minim.MONO : Minim.STEREO, BUFFER_SIZE);
         initParticles(input);
         activeSource = input;
     } else if (filePlayer != null) {
@@ -173,8 +174,8 @@ void draw() {
     if (activeSource == null) {
         camera.beginHUD();
         fill(255);
-        text("Select an audio file, or cancel to use live input.", width/2 - 170, height/2);
-        text("Press m at any time to switch modes.", width/2 - 130, height/2 + 20);
+        text("Initializing audio...", width/2 - 80, height/2);
+        text("Press m to load a file.", width/2 - 80, height/2 + 20);
         camera.endHUD();
         return;
     }
@@ -284,6 +285,12 @@ void keyPressed() {
 
     if (key == '.') camera.reset(CAMERA_RESET_TIME);
 
+    // Toggle mono/stereo input channels and restart audio
+    if (key == 'i' && isLiveMode) {
+        isMonoInput = !isMonoInput;
+        restartAudio();
+    }
+
     // Reconnect input (live) or restart from beginning (file)
     if (key == 'r') {
         restartAudio();
@@ -320,9 +327,8 @@ void keyPressed() {
 
     // Adjust Threshold for lines
     if (key == 'w') line_thresh += 15;
-    if (key == 'q') line_thresh -= 15;
 
-    // Adjust Z thickness
+    // Adjust Threshold for lines
     if (key == 'n') z_thickness += 15;
     if (key == 'b') z_thickness -= 15;
 
@@ -349,6 +355,12 @@ void keyPressed() {
     // Toggle BG draw
     if (key == 'c') {
         drawBG = !drawBG;
+    }
+
+    // Quit
+    if (key == ESC || key == 'q') {
+        key = 0; // prevent Processing's default ESC-stops-sketch from firing twice
+        exit();
     }
 }
 
