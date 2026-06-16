@@ -47,6 +47,9 @@ static final int CAMERA_RESET_TIME = 200;
 // 0.005 - 0.05 is good
 static final float CAMERA_ROTATE_SPEED = 0.007;
 
+// Set to false to run in a window instead of fullscreen
+static final boolean FULLSCREEN = false;
+
 // The length of the axis
 static final int AXIS_LENGTH = 100;
 
@@ -94,10 +97,16 @@ float zloc;
 
 //--------------- Setup ---------------------------
 
+void settings() {
+    if (FULLSCREEN) {
+        fullScreen(P3D);
+    } else {
+        size(1920, 1080, P3D);
+    }
+}
+
 void setup() {
     background(0);
-    //size(1920, 1080, P3D);
-    fullScreen(P3D);
 
     //Set up camera
     camera = new PeasyCam(this, 1000);
@@ -341,9 +350,10 @@ void keyPressed() {
     }
 
     // Adjust Threshold for lines
-    if (key == 'w') line_thresh += 15;
+    if (key == ']') line_thresh += 15;
+    if (key == '[') line_thresh -= 15;
 
-    // Adjust Threshold for lines
+    // Adjust Z Thickness
     if (key == 'n') z_thickness += 15;
     if (key == 'b') z_thickness -= 15;
 
